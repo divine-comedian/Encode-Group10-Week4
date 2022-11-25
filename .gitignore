@@ -1,6 +1,8 @@
 node_modules
 .env 
-FrontEnd/node_modules
+
 artifacts/
 cache
 typechain-types
+.vscode
+.editorconfig
