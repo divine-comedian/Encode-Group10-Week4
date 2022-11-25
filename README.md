@@ -1,3 +1,7 @@
+# Weekend Project
+### Build a frontend for the Lottery dApp
+
+
 # tx hashes and contract addresses
 
 [create voting token](https://goerli.etherscan.io/tx/0x696ec78e4f4d3d6d83ca53aedff9659a415be254a7bc4abc020e7009e050269f)
