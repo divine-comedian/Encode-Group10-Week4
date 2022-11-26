@@ -29,6 +29,8 @@ contract Lottery is Ownable {
     /// @notice Mapping of prize available for withdraw for each account
     mapping(address => uint256) public prize;
 
+    uint256 public window;
+
     /// @dev List of bet slots
     address[] _slots;
 
@@ -137,5 +139,16 @@ contract Lottery is Ownable {
     function returnTokens(uint256 amount) public {
         paymentToken.burnFrom(msg.sender, amount);
         payable(msg.sender).transfer(amount / purchaseRatio);
+    }
+// Added function to get current block time 
+    function getCurrentTime() public view returns(uint) {
+        return block.timestamp;
+    }
+
+// Added function to get current blocktime + duration in hours
+
+    function getBettingWindow(uint256 duration) public view returns(uint256) {
+        
+       return (block.timestamp + duration * 1 hours);
     }
 }
