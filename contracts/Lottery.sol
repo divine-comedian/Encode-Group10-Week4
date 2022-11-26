@@ -13,7 +13,7 @@ contract Lottery is Ownable {
 
         uint256 public ownerPool;
         uint256 public prizePool;
-        mapping (address => )
+        mapping (address => uint256 ) prize;
 
         bool public betsOpen;
 
@@ -58,8 +58,8 @@ contract Lottery is Ownable {
             uint256 winnerIndex = getrandomNumber() % slots.length;
             address winner = slots[winnerIndex];
             prize[winner] += prizePool;
-            prizePool = 0
-            delete(slots)
+            prizePool = 0;
+            delete(slots); 
         }
         betsOpen = false;
     }
