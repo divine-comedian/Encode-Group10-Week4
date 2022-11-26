@@ -1,6 +1,11 @@
 # Weekend Project
 ### Build a frontend for the Lottery dApp
 
+### Steps: 
+1. ```yarn```
+2. navigate to FrontEnd folder ```yarn``` again
+3. in FrontEnd ```ng serve``` or ```yarn start```
+4. Go to deployment.
 
 # tx hashes and contract addresses
 
