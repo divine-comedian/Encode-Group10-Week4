@@ -6,3 +6,4 @@ cache
 typechain-types
 .vscode
 .editorconfig
+FrontEnd/src/environments/environment.ts
