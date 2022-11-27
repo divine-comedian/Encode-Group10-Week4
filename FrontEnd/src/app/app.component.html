@@ -37,7 +37,7 @@
      <h2>Get Tokens!</h2>
      <p>Lottery Contract: {{lotteryContract?.address}} </p>
  </div>
- <div *ngIf="wallet && maxPurchaseAmount">
+ <div *ngIf="wallet">
     <input #tokensToMint type="number" min="1" [max]="maxPurchaseAmount" placeholder="10">
     <button (click)="purchaseTokens(tokensToMint.value)" type="button" class="btn btn-success px-4 mx-2">Buy Tokens!</button>
     <br>
