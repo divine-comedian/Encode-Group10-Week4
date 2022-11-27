@@ -18,7 +18,6 @@
       <button (click)="connectWallet()" type="button" class="btn btn-primary btn-lg px-4 gap-3">Yes I am</button>
       <button type="button" class="btn btn-outline-secondary btn-lg px-4">Not really</button>
     </div>
-
     <div *ngIf="wallet">
     <p class="lead mb-4">This is your address: {{walletAddress}}</p>
     <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"> 
@@ -37,7 +36,7 @@
 </div>
 <div>
 <div>
-<div><button (click)="updateBlockchainInfo()">Refresh</button></div>
+<div><button style="background:1aa3ff;color:white" (click)="updateBlockchainInfo()">Refresh</button></div>
 <h2>Get Tokens!</h2>
 <p>Lottery Contract: {{lotteryContract?.address}} </p>
 </div>
@@ -47,6 +46,39 @@
   <button (click)="purchaseTokens(tokensToMint.value)" type="button" class="btn btn-success bt-sm px-4 mx-2">Gimme some</button>
   <br>
   <span>You can buy a maximum of {{maxPurchaseAmount}} lottery tokens</span>
+</div>
+
+<div>
+  <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"> 
+      <div class="card p-2 m-2">
+          <p>Bet Fee: {{betFee}}</p>
+      </div>
+  <div class="card p-2 m-2">
+      <p>Bet Price: {{betPrice}}</p>
+  </div>
+  <div class="card p-2 m-2">
+      <p>Closing Time: {{betsClosingTimeString}}</p>
+  </div>
+  <div class="card p-2 m-2">
+      <p>Open to bet: {{betsOpen}} </p><p></p>
+  </div>
+</div>
+<div class="card p-2 mb-1 text-bg-dark">
+  <p>getRandomNumber</p>  
+  <p>{{getRandomNumber}}</p>        
+</div>
+<div>
+  <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"> 
+      <div class="card p-2 m-2">
+          <p>Prize Pool: {{prizePool}}</p>
+      </div>
+  <div class="card p-2 m-2">
+      <p>Owner Pool: {{ownerPool}}</p>
+  </div>
+</div>
+</div>    
+<div>
+<button (click)="bet()" type="button" class="betbtn btn-info px-4 mx-2">BET!</button>
 </div>
 </div>
 
