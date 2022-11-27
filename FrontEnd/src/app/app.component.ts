@@ -1,81 +1,47 @@
 import { Component } from '@angular/core';
-import { BigNumber, Contract, ethers, Wallet } from 'ethers';
-import { Injectable } from '@angular/core';
-import { providers } from 'ethers' // providers.BaseProvider
-import { environment } from '../environments/environment'
-import tokenJson from '../assets/Lottery.json';
-
-
-import { formatEther, getAddress, parseEther } from 'ethers/lib/utils';
-import { HttpClient } from '@angular/common/http';
-import { JsonRpcSigner } from '@ethersproject/providers';
-
-// import *as dotenv from "dotenv";
-// dotenv.config()
-
-
+import { BigNumber, ethers } from 'ethers';
+import { environment } from 'src/environments/environment';
+import Lottery from '../assets/Lottery.json';
+import LotteryToken from '../assets/LotteryToken.json'
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 declare global {
   interface Window {
-    ethereum: ethers.providers.ExternalProvider;
+    ethereum: any;
   }
 }
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'my-app';
-  
-  tokenContractAddress: string | undefined;
-
-  wallet: ethers.Wallet | undefined | any
-  provider: ethers.providers.Web3Provider | undefined
-  etherBalance: number | undefined
-  tokenBalance: number | undefined
-  votePower: number | undefined
-  tokenContract: ethers.Contract | undefined
-  window: any;
-  LOTTERYCONTRACT2 =  "0xFC892E2Bb534724613C4444d1D901A728f1eA516" 
-  LOTTERYCONTRACT = "0x31fa755fa054cbbbe1cd7d5a312d11c95acb0b69"
-  betsClosingTime: number | undefined
-  betFee: number | undefined
-  getRandomNumber: number | any
-  betPrice: any;
-  betsOpen: any
-  maxPurchaseAmount: number | undefined;
+  wallet: ethers.Wallet | ethers.providers.JsonRpcSigner  | undefined;
+  etherBalance: number | undefined;
+  lotteryTokenContract: ethers.Contract | undefined;
+  lotteryTokenAddress: any; 
+  lotteryAddress: string | undefined;
+  lotteryTokenBalance: number | undefined;
+  lotteryContract: ethers.Contract | undefined; 
+  betFee: number | undefined;
+  betPrice: number | undefined;
+  prizePool: number | undefined;
+  betsPlaced: number | undefined;
+  // alchemyProvider: ethers.providers.AlchemyProvider | undefined;
+  walletAddress: string | undefined
   purchaseRatio: number | undefined;
- 
+  maxPurchaseAmount: number | undefined;
+  alchemyProvider = new ethers.providers.AlchemyProvider("goerli", environment.alchemyAPI);
 
-  constructor(private http: HttpClient,){}
 
-async getInfo() {
-this.provider = new ethers.providers.Web3Provider(window.ethereum)
-const signer = this.provider.getSigner()
-// this.wallet = await signer.getAddress()
-this.wallet = await this.provider.send("eth_requestAccounts", [])
-// console.log("hey")
- // this.provider = new ethers.providers.InfuraProvider("goerli", { infura: ['INFURA_API_KEY'] })
-  // this.wallet = ethers.Wallet.createRandom().connect(this.provider);
-  // this.http
- 
-     this.tokenContractAddress = this.LOTTERYCONTRACT; // this, remember put const = up the page
-    if (this.tokenContractAddress && this.wallet) {
-    this.tokenContract = new ethers.Contract(
-    this.LOTTERYCONTRACT,
-    tokenJson.abi,
-    signer
-    );
+  constructor(private modalService: NgbModal) {
+   
+  }
 
-    this.tokenContract = this.tokenContract.attach(this.LOTTERYCONTRACT).connect(signer)
-  
-    signer.getBalance().then((balanceBn: ethers.BigNumberish) => {
-      this.etherBalance = parseFloat(ethers.utils.formatEther(balanceBn))
-      // console.log(this.etherBalance)
-    });
-
+  public open(modal: any): void {
+    this.modalService.open(modal);
+  }
 
   createWallet() {
     this.wallet = ethers.Wallet.createRandom().connect(this.alchemyProvider)
@@ -101,50 +67,16 @@ this.wallet = await this.provider.send("eth_requestAccounts", [])
          if(this.etherBalance && this.purchaseRatio){
           this.maxPurchaseAmount = (this.etherBalance * this.purchaseRatio) * 0.95}
          })
-
-  this.tokenContract["betFee"](signer._address).then((betFee: string) => {
-    this.betFee = parseFloat(betFee)});
-      console.log(`betFee${this.betFee}`)
-  
-      this.tokenContract["betPrice"](signer._address).then((betPrice: string) => {
-        this.betPrice = parseFloat(betPrice)});
-        console.log(`betPrice${this.betPrice}`)
-
-
-  this.tokenContract["betsClosingTime"](signer._address).then((betsClosingTime: number) => {
-    this.betsClosingTime = ((betsClosingTime));
-    console.log(`betFee${this.betsClosingTime}`)
-    });
-    
-
-    this.tokenContract["betsOpen"](signer._address).then((betsOpen: string) => {
-      this.betsOpen = ((betsOpen));
-      console.log(`betsOpen${this.betsOpen}`)
       });
-
-  this.tokenContract["getRandomNumber"](signer._address).then((getRandomNumber: ethers.BigNumberish) => {
-      this.getRandomNumber = (getRandomNumber)
+    this.lotteryAddress = environment.lotteryAddress;
+      // get eth balance in wallet
+    this.wallet?.getBalance().then((balanceBn) => {
+      this.etherBalance = parseFloat(ethers.utils.formatEther(balanceBn))
     })
-         console.log(`betFee${this.getRandomNumber}`)
-    }
-  
+  }
 
-  
-  
-    
-
-//   }
-// }
-  
-    }
-// async getR(value: string){
-//   this.tokenContract?["getRandomNumber"]()
-// } 
-
-  async connectWallet() {
-
+ async connectWallet() {
     const MetaMaskprovider = new ethers.providers.Web3Provider(window.ethereum)
-
 // MetaMask requires requesting permission to connect users accounts
 await MetaMaskprovider.send("eth_requestAccounts", []);
 // The MetaMask plugin also allows signing transactions to
@@ -172,17 +104,15 @@ await MetaMaskprovider.send("eth_requestAccounts", []);
   }
 
 
-
   async purchaseTokens(tokensToMint: string) {
-    this.wallet?.getBalance().then((balanceBn: ethers.BigNumberish) => {
+    this.wallet?.getBalance().then((balanceBn) => {
       this.etherBalance = parseFloat(ethers.utils.formatEther(balanceBn))
     })
     if(this.wallet && this.purchaseRatio && this.etherBalance) {
     const etherToRequest = parseFloat(tokensToMint) / this.purchaseRatio
-
     this.lotteryContract = new ethers.Contract(environment.lotteryAddress, Lottery.abi, this.alchemyProvider);
     this.lotteryContract.connect(this.wallet)['purchaseTokens']({ value: ethers.utils.parseEther(String(etherToRequest)) });}
     
 
-
+  }
 }
