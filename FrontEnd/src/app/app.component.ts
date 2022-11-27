@@ -7,7 +7,8 @@ import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 
 declare global {
   interface Window {
-    ethereum: any;
+    // ethereum: any;
+    ethereum: ethers.providers.ExternalProvider;
   }
 }
 
@@ -18,6 +19,7 @@ declare global {
 })
 export class AppComponent {
   wallet: ethers.Wallet | ethers.providers.JsonRpcSigner | undefined;
+  provider: ethers.providers.Web3Provider | undefined;
   etherBalance: number | undefined;
   lotteryTokenContract: ethers.Contract | undefined;
   lotteryTokenAddress: any;
@@ -27,6 +29,7 @@ export class AppComponent {
   betFee: number | undefined;
   betPrice: number | undefined;
   prizePool: number | undefined;
+  ownerPool: number | undefined;
   betsPlaced: number | undefined;
   // alchemyProvider: ethers.providers.AlchemyProvider | undefined;
   walletAddress: string | undefined;
@@ -36,6 +39,10 @@ export class AppComponent {
     "goerli",
     environment.alchemyAPI
   );
+  betsClosingTime: number | undefined;
+  betsClosingTimeString: string | undefined;
+  betsOpen: string | undefined;
+  getRandomNumber: number | any;
 
   constructor(private modalService: NgbModal) {}
 
@@ -51,10 +58,9 @@ export class AppComponent {
   }
 
   async getInfo() {
-    const provider = new ethers.providers.AlchemyProvider(
-      "goerli",
-      environment.alchemyAPI
-    );
+    this.provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = this.provider.getSigner();
+    this.wallet = await this.provider.send("eth_requestAccounts", []);
 
     // define lottery contract
     this.lotteryContract = new ethers.Contract(
@@ -62,11 +68,13 @@ export class AppComponent {
       Lottery.abi,
       this.alchemyProvider
     );
+
     this.lotteryContract?.["purchaseRatio"]().then((purchaseRatio: number) => {
       this.purchaseRatio =
         Number(ethers.utils.formatUnits(purchaseRatio)) * 10 ** 18;
       console.log(this.purchaseRatio);
     });
+
     this.lotteryContract?.["paymentToken"]().then((tokenAddress: string) => {
       // get lottery token
       this.lotteryTokenContract = new ethers.Contract(
@@ -74,6 +82,7 @@ export class AppComponent {
         LotteryToken.abi,
         this.alchemyProvider
       );
+
       // get lottery token balance
       this.lotteryTokenAddress = tokenAddress;
       this.lotteryTokenContract["balanceOf"](this.walletAddress).then(
@@ -88,11 +97,63 @@ export class AppComponent {
         }
       );
     });
+
     this.lotteryAddress = environment.lotteryAddress;
     // get eth balance in wallet
-    this.wallet?.getBalance().then((balanceBn) => {
+    signer.getBalance().then((balanceBn: ethers.BigNumberish) => {
       this.etherBalance = parseFloat(ethers.utils.formatEther(balanceBn));
+      // console.log(this.etherBalance)
     });
+    this.lotteryContract?.["ownerPool"](signer._address).then(
+      (ownerPool: string) => {
+        this.ownerPool = parseFloat(ownerPool);
+      }
+    );
+    this.lotteryContract?.["prizePool"](signer._address).then(
+      (prizePool: string) => {
+        this.prizePool = parseFloat(prizePool);
+      }
+    );
+
+    this.lotteryContract?.["betFee"](signer._address).then((betFee: string) => {
+      this.betFee = parseFloat(betFee);
+    });
+    console.log(`betFee${this.betFee}`);
+
+    this.lotteryContract["betPrice"](signer._address).then(
+      (betPrice: string) => {
+        this.betPrice = parseFloat(betPrice);
+      }
+    );
+    console.log(`betPrice${this.betPrice}`);
+    this.lotteryContract?.["betsClosingTime"](signer._address).then(
+      (betsClosingTime: number) => {
+        this.betsClosingTime = betsClosingTime;
+
+        this.betsClosingTimeString = new Date(
+          betsClosingTime * 1000
+        ).toLocaleTimeString();
+        console.log(
+          `betsClosingTimeString: ${new Date(
+            this.betsClosingTime * 1000
+          ).toLocaleTimeString()}`
+        );
+      }
+    );
+
+    this.lotteryContract?.["betsOpen"](signer._address).then(
+      (betsOpen: string) => {
+        this.betsOpen = betsOpen;
+        console.log(`betsOpen: ${this.betsOpen}`);
+      }
+    );
+
+    this.lotteryContract?.["getRandomNumber"](signer._address).then(
+      (getRandomNumber: ethers.BigNumberish) => {
+        this.getRandomNumber = getRandomNumber;
+        console.log(`getRandomNumber: ${this.getRandomNumber}`);
+      }
+    );
   }
 
   async connectWallet() {
@@ -150,11 +211,31 @@ export class AppComponent {
         Lottery.abi,
         this.alchemyProvider
       );
-      this.lotteryContract
-        .connect(this.wallet)
-        ["purchaseTokens"]({
-          value: ethers.utils.parseEther(String(etherToRequest)),
-        });
+      this.lotteryContract.connect(this.wallet)["purchaseTokens"]({
+        value: ethers.utils.parseEther(String(etherToRequest)),
+      });
     }
+  }
+
+  async bet() {
+    console.log("---BET!---------");
+    this.provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = this.provider.getSigner();
+    const state = await this.lotteryContract?.["betsOpen"]();
+    this.lotteryContract = new ethers.Contract(
+      environment.lotteryAddress,
+      Lottery.abi,
+      this.alchemyProvider
+    );
+    if (state && this.wallet) {
+      this.lotteryContract.connect(signer)["bet"]();
+      console.log("bet success!");
+      console.log("prize pool: ", this.prizePool);
+    }
+
+    // ownerPool += betFee;
+    // prizePool += betPrice;
+    // _slots.push(msg.sender);
+    // paymentToken.transferFrom(msg.sender, address(this), betPrice + betFee);
   }
 }

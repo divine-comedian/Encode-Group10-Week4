@@ -1,4 +1,5 @@
 <div class="px-4 py-5 my-5 text-center">
+<img src="../assets/bet.png" alt="BetImage" style="width:200px;height:200px;">
   <h1 class="display-5 fw-bold">
      Best Lottery App Ever!</h1> 
      <div class="col-lg-6 mx-auto"> 
@@ -33,15 +34,46 @@
          </div>
          
      </div>
-     <div><button (click)="updateBlockchainInfo()">Refresh</button></div>
+     <div><button style="background:#1aa3ff;color:white;" (click)="updateBlockchainInfo()">Refresh</button></div>
      <h2>Get Tokens!</h2>
      <p>Lottery Contract: {{lotteryContract?.address}} </p>
  </div>
- <div *ngIf="wallet">
-    <input #tokensToMint type="number" min="1" [max]="maxPurchaseAmount" placeholder="10">
-    <button (click)="purchaseTokens(tokensToMint.value)" type="button" class="btn btn-success px-4 mx-2">Buy Tokens!</button>
-    <br>
-    <span>You can purchase a maximum of {{maxPurchaseAmount}} betting tokens</span>
-</div>     
-</div>
-     </div>
+        <div *ngIf="wallet">
+            <input #tokensToMint type="number" min="1" [max]="maxPurchaseAmount" placeholder="10">
+            <button (click)="purchaseTokens(tokensToMint.value)" type="button" class="btn btn-success px-4 mx-2">Buy Tokens!</button>
+            <br>
+            <span>You can purchase a maximum of {{maxPurchaseAmount}} betting tokens</span>
+            <div>
+                <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"> 
+                    <div class="card p-2 m-2">
+                        <p>Bet Fee: {{betFee}}</p>
+                    </div>
+                <div class="card p-2 m-2">
+                    <p>Bet Price: {{betPrice}}</p>
+                </div>
+                <div class="card p-2 m-2">
+                    <p>Closing Time: {{betsClosingTimeString}}</p>
+                </div>
+                <div class="card p-2 m-2">
+                    <p>Open to bet: {{betsOpen}} </p><p></p>
+                </div>
+            </div>
+            <div class="card p-2 mb-1 text-bg-dark">
+                <p>getRandomNumber</p>  
+                <p>{{getRandomNumber}}</p>        
+            </div>
+            <div>
+                <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"> 
+                    <div class="card p-2 m-2">
+                        <p>Prize Pool: {{prizePool}}</p>
+                    </div>
+                <div class="card p-2 m-2">
+                    <p>Owner Pool: {{ownerPool}}</p>
+                </div>
+            </div>
+        </div>    
+        <div>
+            <button (click)="bet()" type="button" class="betbtn btn-info px-4 mx-2">BET!</button>
+        </div>
+         
+ </div>
