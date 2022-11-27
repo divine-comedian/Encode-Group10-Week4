@@ -12,7 +12,7 @@ const BET_FEE = 0.2;
 // const TOKEN_RATIO = 1;
 const NAME = "Lottery Crazy Token";
 const SYMBOL = "LCT";
-const PURCHASE_RATIO = 5;
+const PURCHASE_RATIO = 50;
 
 async function main () {
     // const provider = ethers.getDefaultProvider()
