@@ -76,6 +76,32 @@ this.wallet = await this.provider.send("eth_requestAccounts", [])
       // console.log(this.etherBalance)
     });
 
+
+  createWallet() {
+    this.wallet = ethers.Wallet.createRandom().connect(this.alchemyProvider)
+    this.walletAddress = this.wallet.address;
+    this.getInfo()
+    setInterval(this.updateBlockchainInfo, 1000)
+  }
+
+  async getInfo() {
+    const provider = new ethers.providers.AlchemyProvider("goerli", environment.alchemyAPI);
+    
+    // define lottery contract
+    this.lotteryContract = new ethers.Contract(environment.lotteryAddress, Lottery.abi, this.alchemyProvider)
+    this.lotteryContract?.['purchaseRatio']().then((purchaseRatio: number) => { this.purchaseRatio = Number(ethers.utils.formatUnits(purchaseRatio)) * 10**18; console.log(this.purchaseRatio)});
+    this.lotteryContract?.['paymentToken']().then((tokenAddress: string) => {
+      
+      // get lottery token
+      this.lotteryTokenContract = new ethers.Contract(tokenAddress, LotteryToken.abi, this.alchemyProvider)
+       // get lottery token balance
+       this.lotteryTokenAddress = tokenAddress;
+       this.lotteryTokenContract['balanceOf'](this.walletAddress).then((tokenBalanceBn: BigNumber) => {
+         this.lotteryTokenBalance = parseFloat(ethers.utils.formatEther(tokenBalanceBn))
+         if(this.etherBalance && this.purchaseRatio){
+          this.maxPurchaseAmount = (this.etherBalance * this.purchaseRatio) * 0.95}
+         })
+
   this.tokenContract["betFee"](signer._address).then((betFee: string) => {
     this.betFee = parseFloat(betFee)});
       console.log(`betFee${this.betFee}`)
@@ -119,34 +145,33 @@ this.wallet = await this.provider.send("eth_requestAccounts", [])
 
     const MetaMaskprovider = new ethers.providers.Web3Provider(window.ethereum)
 
+// MetaMask requires requesting permission to connect users accounts
 await MetaMaskprovider.send("eth_requestAccounts", []);
-  
-const signer = MetaMaskprovider.getSigner();
-  await signer.getAddress().then((address) => {
-  // console.log(signer.getBalance(), "11111")
+// The MetaMask plugin also allows signing transactions to
+// send ether and pay to change state within the blockchain.
+// For this, you need the account signer...
+   this.wallet =  MetaMaskprovider.getSigner();
+  await this.wallet.getAddress().then((address) => {;
+  this.walletAddress = address
+    });
+    this.getInfo();
+  }
     
-    const accounts = address
-    console.log(address, accounts, signer);
-  
-  } )
-  // console.log(parseFloat(
-  //   ethers.utils.formatEther(await signer.getBalance())))
+  updateBlockchainInfo() {
+      
+    const provider = new ethers.providers.AlchemyProvider("goerli", environment.alchemyAPI);
+      this.lotteryContract = new ethers.Contract(environment.lotteryAddress, Lottery.abi, provider);
+      this.lotteryContract?.['paymentToken']().then((tokenAddress: string) => {   
+        // get lottery token
+        this.lotteryTokenContract = new ethers.Contract(tokenAddress, LotteryToken.abi, provider)
+        this.lotteryTokenContract['balanceOf'](this.walletAddress).then((tokenBalanceBn: BigNumber) => {
+          this.lotteryTokenBalance = parseFloat(ethers.utils.formatEther(tokenBalanceBn))}
+      )})
+      this.wallet?.getBalance().then((balanceBn) => {
+        this.etherBalance = parseFloat(ethers.utils.formatEther(balanceBn)) })
   }
 
 
-  // vote(voteId: string){
-  //   console.log("try to vote" + voteId)
-  //   // this.ballotContract["vote"](voteId)
-  // }
-  // request() {
-    
-  //   this.http
-  //   .post<any>("http://localhost:3000/request-tokens", {
-  //     address: this.wallet?.address,})
-  //   .subscribe((ans) => {console.log(ans)});
-    
-    
-  // }
 
   async purchaseTokens(tokensToMint: string) {
     this.wallet?.getBalance().then((balanceBn: ethers.BigNumberish) => {
@@ -154,11 +179,10 @@ const signer = MetaMaskprovider.getSigner();
     })
     if(this.wallet && this.purchaseRatio && this.etherBalance) {
     const etherToRequest = parseFloat(tokensToMint) / this.purchaseRatio
-    console.log(etherToRequest)
-    console.log(this.maxPurchaseAmount)
-    this.tokenContract = new ethers.Contract(this.LOTTERYCONTRACT, tokenJson.abi, this.provider);
-    this.tokenContract.connect(this.wallet)['purchaseTokens']({ value: ethers.utils.parseEther(String(etherToRequest)) });}
 
-}
+    this.lotteryContract = new ethers.Contract(environment.lotteryAddress, Lottery.abi, this.alchemyProvider);
+    this.lotteryContract.connect(this.wallet)['purchaseTokens']({ value: ethers.utils.parseEther(String(etherToRequest)) });}
+    
+
 
 }

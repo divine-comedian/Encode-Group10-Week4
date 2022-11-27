@@ -69,4 +69,39 @@
     </footer> -->
   </div>
 
-      
+
+ <button (click)="connectWallet()" type="button" class="btn btn-success btn-lg px-4 gap-3">
+     Connect a Wallet</button>
+ 
+ </div>
+     </div > 
+     <div *ngIf="wallet">
+         <p class="lead mb-4">This is your address: {{walletAddress}}</p>
+         <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"> 
+             <div class="card p-2 m-2">
+             <p>Ether Balance: </p>
+             <p>{{etherBalance}}</p>
+         </div>
+         <div class="card p-4 m-2">
+             <p>Token Contract:</p>
+             <p>{{lotteryTokenAddress}}</p>
+         </div>
+         <div class="card p-4 m-2">
+             <p>My Token Balance:</p>
+              <p>{{lotteryTokenBalance}}</p>
+         </div>
+         
+     </div>
+     <div><button (click)="updateBlockchainInfo()">Refresh</button></div>
+     <h2>Get Tokens!</h2>
+     <p>Lottery Contract: {{lotteryContract?.address}} </p>
+ </div>
+ <div *ngIf="wallet && maxPurchaseAmount">
+    <input #tokensToMint type="number" min="1" [max]="maxPurchaseAmount" placeholder="10">
+    <button (click)="purchaseTokens(tokensToMint.value)" type="button" class="btn btn-success px-4 mx-2">Buy Tokens!</button>
+    <br>
+    <span>You can purchase a maximum of {{maxPurchaseAmount}} betting tokens</span>
+</div>     
+</div>
+     </div>
+
