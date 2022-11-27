@@ -20,6 +20,22 @@
     </div>
   </div>
 </div> 
+<div class="dropdown-center px-3 py-5 my-5 text-center">
+  <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Let's get started
+  </button>
+  <ul class="dropdown-menu">
+    <li><button (click)="purchaseTokens" class="dropdown-item" href="#">Get some tokens</button></li>
+    <li><button class="dropdown-item" href="#">Place a bet</button></li>
+    <li><button class="dropdown-item" href="#">Place multiple bets</button></li>
+  </ul>
+</div>
+<div>
+  <hr style="width:50%;text-align:left;margin-left:0">
+  <p><b>How many lottery tokens would you like?</b></p>
+  <input #buyAmount type="number" min="10" [max]="100">
+  <button (click)="purchaseTokens" type="button" class="btn btn-secondary bt-sm px-4 mx-2">Gimme</button>
+</div>
 <div *ngIf="wallet">
     <p class="lead mb-4">This is your address: {{walletAddress}}</p>
     <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"> 
@@ -32,10 +48,10 @@
         <p>{{lotteryTokenAddress}}</p>
     </div>
     <div class="card p-4 m-2">
-        <p>My Token Balance:</p>
+        <p>Lottery Token Balance:</p>
          <p>{{lotteryTokenBalance}}</p>
     </div>
 </div>
-<h2>Voting Information</h2>
+<h2>Betting info</h2>
 <p>Lottery Contract: {{lotteryContract?.address}} </p>
 </div>
