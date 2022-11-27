@@ -2,7 +2,7 @@
   <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
     <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
       <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"></use></svg>
-      <span class="fs-4">Let's play a game</span>
+      <span class="fs-4">Best Lottery App Ever!</span>
     </a>
 
     <ul class="nav nav-pills">
@@ -18,25 +18,8 @@
       <button (click)="connectWallet()" type="button" class="btn btn-primary btn-lg px-4 gap-3">Yes I am</button>
       <button type="button" class="btn btn-outline-secondary btn-lg px-4">Not really</button>
     </div>
-  </div>
-</div> 
-<div class="dropdown-center px-3 py-5 my-5 text-center">
-  <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Let's get started
-  </button>
-  <ul class="dropdown-menu">
-    <li><button (click)="purchaseTokens" class="dropdown-item" href="#">Get some tokens</button></li>
-    <li><button class="dropdown-item" href="#">Place a bet</button></li>
-    <li><button class="dropdown-item" href="#">Place multiple bets</button></li>
-  </ul>
-</div>
-<div>
-  <hr style="width:50%;text-align:left;margin-left:0">
-  <p><b>How many lottery tokens would you like?</b></p>
-  <input #buyAmount type="number" min="10" [max]="100">
-  <button (click)="purchaseTokens" type="button" class="btn btn-secondary bt-sm px-4 mx-2">Gimme</button>
-</div>
-<div *ngIf="wallet">
+
+    <div *ngIf="wallet">
     <p class="lead mb-4">This is your address: {{walletAddress}}</p>
     <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"> 
         <div class="card p-2 m-2">
@@ -48,10 +31,24 @@
         <p>{{lotteryTokenAddress}}</p>
     </div>
     <div class="card p-4 m-2">
-        <p>Lottery Token Balance:</p>
+        <p>Lottery Balance:</p>
          <p>{{lotteryTokenBalance}}</p>
     </div>
 </div>
-<h2>Betting info</h2>
+<div>
+<div>
+<div><button (click)="updateBlockchainInfo()">Refresh</button></div>
+<h2>Get Tokens!</h2>
 <p>Lottery Contract: {{lotteryContract?.address}} </p>
 </div>
+  <hr style="width:50%;text-align:left;margin-left:0">
+  <p><b>How many lottery tokens would you like?</b></p>
+  <input #tokensToMint type="number" min="1" [max]="maxPurchaseAmount" placeholder="10">
+  <button (click)="purchaseTokens(tokensToMint.value)" type="button" class="btn btn-success bt-sm px-4 mx-2">Gimme some</button>
+  <br>
+  <span>You can buy a maximum of {{maxPurchaseAmount}} lottery tokens</span>
+</div>
+</div>
+
+  </div>
+</div> 
