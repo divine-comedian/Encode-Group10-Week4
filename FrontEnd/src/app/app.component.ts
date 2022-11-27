@@ -81,4 +81,13 @@ await MetaMaskprovider.send("eth_requestAccounts", []);
     });
     this.getInfo();
   }
+   async openBets(duration: string) {
+    if (this.lotteryContract && this.provider) {
+      const latestBlock = await this.provider.getBlock("latest");
+      const openTx = await this.lotteryContract["openBets"](latestBlock.timestamp + Number(duration));
+      const tx = await openTx.wait();
+      console.log(`Bets are now open! hash: ${tx.transactionHash}`);
+    }
+  
+  
 }
