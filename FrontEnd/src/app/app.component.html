@@ -31,7 +31,9 @@
              <p>My Token Balance:</p>
               <p>{{lotteryTokenBalance}}</p>
          </div>
+         
      </div>
+     <div><button (click)="updateBlockchainInfo()">Refresh</button></div>
      <h2>Get Tokens!</h2>
      <p>Lottery Contract: {{lotteryContract?.address}} </p>
  </div>

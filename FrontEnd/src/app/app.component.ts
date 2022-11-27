@@ -44,14 +44,15 @@ export class AppComponent {
   }
 
   createWallet() {
-    // this.alchemyProvider = new ethers.providers.AlchemyProvider("goerli", environment.alchemyAPI);
     this.wallet = ethers.Wallet.createRandom().connect(this.alchemyProvider)
     this.walletAddress = this.wallet.address;
     this.getInfo()
-  //  setInterval(this.getInfo, 1000)
+    setInterval(this.updateBlockchainInfo, 1000)
   }
 
   async getInfo() {
+    const provider = new ethers.providers.AlchemyProvider("goerli", environment.alchemyAPI);
+    
     // define lottery contract
     this.lotteryContract = new ethers.Contract(environment.lotteryAddress, Lottery.abi, this.alchemyProvider)
     this.lotteryContract?.['purchaseRatio']().then((purchaseRatio: number) => { this.purchaseRatio = Number(ethers.utils.formatUnits(purchaseRatio)) * 10**18; console.log(this.purchaseRatio)});
@@ -59,7 +60,6 @@ export class AppComponent {
       
       // get lottery token
       this.lotteryTokenContract = new ethers.Contract(tokenAddress, LotteryToken.abi, this.alchemyProvider)
-      console.log(tokenAddress)
        // get lottery token balance
        this.lotteryTokenAddress = tokenAddress;
        this.lotteryTokenContract['balanceOf'](this.walletAddress).then((tokenBalanceBn: BigNumber) => {
@@ -84,21 +84,32 @@ await MetaMaskprovider.send("eth_requestAccounts", []);
 // For this, you need the account signer...
    this.wallet =  MetaMaskprovider.getSigner();
   await this.wallet.getAddress().then((address) => {;
-  console.log(address);
   this.walletAddress = address
     });
     this.getInfo();
- // setInterval(this.getInfo, 5000)
-
   }
+    
+  updateBlockchainInfo() {
+      
+    const provider = new ethers.providers.AlchemyProvider("goerli", environment.alchemyAPI);
+      this.lotteryContract = new ethers.Contract(environment.lotteryAddress, Lottery.abi, provider);
+      this.lotteryContract?.['paymentToken']().then((tokenAddress: string) => {   
+        // get lottery token
+        this.lotteryTokenContract = new ethers.Contract(tokenAddress, LotteryToken.abi, provider)
+        this.lotteryTokenContract['balanceOf'](this.walletAddress).then((tokenBalanceBn: BigNumber) => {
+          this.lotteryTokenBalance = parseFloat(ethers.utils.formatEther(tokenBalanceBn))}
+      )})
+      this.wallet?.getBalance().then((balanceBn) => {
+        this.etherBalance = parseFloat(ethers.utils.formatEther(balanceBn)) })
+  }
+
+
   async purchaseTokens(tokensToMint: string) {
     this.wallet?.getBalance().then((balanceBn) => {
       this.etherBalance = parseFloat(ethers.utils.formatEther(balanceBn))
     })
     if(this.wallet && this.purchaseRatio && this.etherBalance) {
     const etherToRequest = parseFloat(tokensToMint) / this.purchaseRatio
-    console.log(etherToRequest)
-    console.log(this.maxPurchaseAmount)
     this.lotteryContract = new ethers.Contract(environment.lotteryAddress, Lottery.abi, this.alchemyProvider);
     this.lotteryContract.connect(this.wallet)['purchaseTokens']({ value: ethers.utils.parseEther(String(etherToRequest)) });}
     
