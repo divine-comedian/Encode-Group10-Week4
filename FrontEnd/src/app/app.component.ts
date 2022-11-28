@@ -241,6 +241,13 @@ export class AppComponent {
       console.log("bet success!");
       console.log("prize pool: ", this.prizePool);
     }
+    
+    ///async closeLottery() {
+     /// if (this.lotteryContract && this.lotteryTokenContract && this.provider && this.signer) {
+        ///const closeTx = await this.lotteryContract["closeLottery"]();
+        ///const receipt = await closeTx.wait();
+        ///console.log(`the lottery is now closed (${receipt.transactionHash})`);
+      ///}
 
     // ownerPool += betFee;
     // prizePool += betPrice;
