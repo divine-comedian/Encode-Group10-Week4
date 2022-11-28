@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ComponentFactoryResolver } from "@angular/core";
 import { BigNumber, ethers } from "ethers";
 import { environment } from "src/environments/environment";
 import Lottery from "../assets/Lottery.json";
@@ -58,9 +58,10 @@ export class AppComponent {
   }
 
   async getInfo() {
-    this.provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = this.provider.getSigner();
-    this.wallet = await this.provider.send("eth_requestAccounts", []);
+    const provider = new ethers.providers.AlchemyProvider("goerli", environment.alchemyAPI);
+   // this.provider = new ethers.providers.Web3Provider(window.ethereum);
+   // const signer = this.provider.getSigner();
+   // this.wallet = await this.provider.send("eth_requestAccounts", []);
 
     // define lottery contract
     this.lotteryContract = new ethers.Contract(
@@ -100,33 +101,33 @@ export class AppComponent {
 
     this.lotteryAddress = environment.lotteryAddress;
     // get eth balance in wallet
-    signer.getBalance().then((balanceBn: ethers.BigNumberish) => {
+    this.wallet?.getBalance().then((balanceBn: ethers.BigNumberish) => {
       this.etherBalance = parseFloat(ethers.utils.formatEther(balanceBn));
       // console.log(this.etherBalance)
     });
-    this.lotteryContract?.["ownerPool"](signer._address).then(
+    this.lotteryContract?.["ownerPool"]().then(
       (ownerPool: string) => {
         this.ownerPool = parseFloat(ownerPool);
       }
     );
-    this.lotteryContract?.["prizePool"](signer._address).then(
+    this.lotteryContract?.["prizePool"]().then(
       (prizePool: string) => {
         this.prizePool = parseFloat(prizePool);
       }
     );
 
-    this.lotteryContract?.["betFee"](signer._address).then((betFee: string) => {
+    this.lotteryContract?.["betFee"]().then((betFee: string) => {
       this.betFee = parseFloat(betFee);
     });
     console.log(`betFee${this.betFee}`);
 
-    this.lotteryContract["betPrice"](signer._address).then(
+    this.lotteryContract["betPrice"]().then(
       (betPrice: string) => {
         this.betPrice = parseFloat(betPrice);
       }
     );
     console.log(`betPrice${this.betPrice}`);
-    this.lotteryContract?.["betsClosingTime"](signer._address).then(
+    this.lotteryContract?.["betsClosingTime"]().then(
       (betsClosingTime: number) => {
         this.betsClosingTime = betsClosingTime;
 
@@ -141,14 +142,14 @@ export class AppComponent {
       }
     );
 
-    this.lotteryContract?.["betsOpen"](signer._address).then(
+    this.lotteryContract?.["betsOpen"]().then(
       (betsOpen: string) => {
         this.betsOpen = betsOpen;
         console.log(`betsOpen: ${this.betsOpen}`);
       }
     );
 
-    this.lotteryContract?.["getRandomNumber"](signer._address).then(
+    this.lotteryContract?.["getRandomNumber"]().then(
       (getRandomNumber: ethers.BigNumberish) => {
         this.getRandomNumber = getRandomNumber;
         console.log(`getRandomNumber: ${this.getRandomNumber}`);
@@ -219,16 +220,24 @@ export class AppComponent {
 
   async bet() {
     console.log("---BET!---------");
-    this.provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = this.provider.getSigner();
-    const state = await this.lotteryContract?.["betsOpen"]();
+    // this.provider = new ethers.providers.Web3Provider(window.ethereum);
+    // const signer = this.provider.getSigner();
+    // const state = await this.lotteryContract?.["betsOpen"]();
     this.lotteryContract = new ethers.Contract(
       environment.lotteryAddress,
       Lottery.abi,
       this.alchemyProvider
     );
-    if (state && this.wallet) {
-      this.lotteryContract.connect(signer)["bet"]();
+    if (this.wallet && this.betFee && this.betPrice) {
+      const betTokens = this.betFee + this.betPrice
+     const allowTx = await this.lotteryTokenContract?.connect(this.wallet)['approve'](this.lotteryAddress, betTokens)
+      await allowTx.wait()
+     console.log(this.lotteryContract)
+      const tx = await this.lotteryContract
+      .connect(this.wallet)
+      ["bet"]();
+      const receipt = await tx.wait()
+      console.log(receipt)
       console.log("bet success!");
       console.log("prize pool: ", this.prizePool);
     }
