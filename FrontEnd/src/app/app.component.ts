@@ -4,6 +4,7 @@ import { environment } from "src/environments/environment";
 import Lottery from "../assets/Lottery.json";
 import LotteryToken from "../assets/LotteryToken.json";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { Address } from "cluster";
 
 declare global {
   interface Window {
@@ -43,6 +44,8 @@ export class AppComponent {
   betsClosingTimeString: string | undefined;
   betsOpen: string | undefined;
   getRandomNumber: number | any;
+  // _slots: Address | any;
+  prize: Map<Address, string> | any;
 
   constructor(private modalService: NgbModal) {}
 
@@ -58,10 +61,13 @@ export class AppComponent {
   }
 
   async getInfo() {
-    const provider = new ethers.providers.AlchemyProvider("goerli", environment.alchemyAPI);
-   // this.provider = new ethers.providers.Web3Provider(window.ethereum);
-   // const signer = this.provider.getSigner();
-   // this.wallet = await this.provider.send("eth_requestAccounts", []);
+    const provider = new ethers.providers.AlchemyProvider(
+      "goerli",
+      environment.alchemyAPI
+    );
+    // this.provider = new ethers.providers.Web3Provider(window.ethereum);
+    // const signer = this.provider.getSigner();
+    // this.wallet = await this.provider.send("eth_requestAccounts", []);
 
     // define lottery contract
     this.lotteryContract = new ethers.Contract(
@@ -105,27 +111,25 @@ export class AppComponent {
       this.etherBalance = parseFloat(ethers.utils.formatEther(balanceBn));
       // console.log(this.etherBalance)
     });
-    this.lotteryContract?.["ownerPool"]().then(
-      (ownerPool: string) => {
-        this.ownerPool = parseFloat(ownerPool);
-      }
-    );
-    this.lotteryContract?.["prizePool"]().then(
-      (prizePool: string) => {
-        this.prizePool = parseFloat(prizePool);
-      }
-    );
+    this.lotteryContract?.["ownerPool"]().then((ownerPool: string) => {
+      this.ownerPool = parseFloat(ownerPool);
+    });
+    this.lotteryContract?.["prizePool"]().then((prizePool: string) => {
+      this.prizePool = parseFloat(prizePool);
+    });
+
+    // this.lotteryContract?.["prize"]().then((prize: Map<Address, string>) => {
+    //   this.prize = prize;
+    // });
 
     this.lotteryContract?.["betFee"]().then((betFee: string) => {
       this.betFee = parseFloat(betFee);
     });
     console.log(`betFee${this.betFee}`);
 
-    this.lotteryContract["betPrice"]().then(
-      (betPrice: string) => {
-        this.betPrice = parseFloat(betPrice);
-      }
-    );
+    this.lotteryContract["betPrice"]().then((betPrice: string) => {
+      this.betPrice = parseFloat(betPrice);
+    });
     console.log(`betPrice${this.betPrice}`);
     this.lotteryContract?.["betsClosingTime"]().then(
       (betsClosingTime: number) => {
@@ -142,12 +146,10 @@ export class AppComponent {
       }
     );
 
-    this.lotteryContract?.["betsOpen"]().then(
-      (betsOpen: string) => {
-        this.betsOpen = betsOpen;
-        console.log(`betsOpen: ${this.betsOpen}`);
-      }
-    );
+    this.lotteryContract?.["betsOpen"]().then((betsOpen: string) => {
+      this.betsOpen = betsOpen;
+      console.log(`betsOpen: ${this.betsOpen}`);
+    });
 
     this.lotteryContract?.["getRandomNumber"]().then(
       (getRandomNumber: ethers.BigNumberish) => {
@@ -229,22 +231,51 @@ export class AppComponent {
       this.alchemyProvider
     );
     if (this.wallet && this.betFee && this.betPrice) {
-      const betTokens = this.betFee + this.betPrice
-     const allowTx = await this.lotteryTokenContract?.connect(this.wallet)['approve'](this.lotteryAddress, betTokens)
-      await allowTx.wait()
-     console.log(this.lotteryContract)
-      const tx = await this.lotteryContract
-      .connect(this.wallet)
-      ["bet"]();
-      const receipt = await tx.wait()
-      console.log(receipt)
+      const betTokens = this.betFee + this.betPrice;
+      const allowTx = await this.lotteryTokenContract
+        ?.connect(this.wallet)
+        ["approve"](this.lotteryAddress, betTokens);
+      await allowTx.wait();
+      console.log(this.lotteryContract);
+      const tx = await this.lotteryContract.connect(this.wallet)["bet"]();
+      const receipt = await tx.wait();
+      console.log(receipt);
       console.log("bet success!");
       console.log("prize pool: ", this.prizePool);
     }
+  }
 
-    // ownerPool += betFee;
-    // prizePool += betPrice;
-    // _slots.push(msg.sender);
-    // paymentToken.transferFrom(msg.sender, address(this), betPrice + betFee);
+  async closeLottery() {
+    console.log("CLOSE LOTTERY----------------");
+    this.lotteryContract = new ethers.Contract(
+      environment.lotteryAddress,
+      Lottery.abi,
+      this.alchemyProvider
+    );
+    if (this.wallet) {
+      const tx = await this.lotteryContract
+        .connect(this.wallet)
+        ["closeLottery"]();
+      const receipt = await tx.wait();
+      console.log("CLOSED!");
+      console.log(
+        "winner: ",
+        this.lotteryContract["closeLottery"]()["winner"]()
+      );
+      console.log(`Closed bets: (${receipt.transactionHash})\n`);
+    }
+  }
+  async displayPrize(address: string) {
+    this.lotteryContract = new ethers.Contract(
+      environment.lotteryAddress,
+      Lottery.abi,
+      this.alchemyProvider
+    );
+    const prizeBN = await this.lotteryContract["prize"](address);
+    const prize = ethers.utils.formatEther(prizeBN);
+    console.log(
+      `The account of address ${address} has earned a prize of ${prize} Tokens\n`
+    );
+    return prize;
   }
 }
