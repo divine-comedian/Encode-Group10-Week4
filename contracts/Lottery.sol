@@ -34,12 +34,12 @@ contract Lottery is Ownable {
     /// @dev List of bet slots
     address[] _slots;
 
-    /// @notice Constructor function
-    /// @param tokenName Name of the token used for payment
-    /// @param tokenSymbol Symbol of the token used for payment
-    /// @param _purchaseRatio Amount of tokens given per ETH paid
-    /// @param _betPrice Amount of tokens required for placing a bet that goes for the prize pool
-    /// @param _betFee Amount of tokens required for placing a bet that goes for the owner pool
+    // Constructor function
+    // tokenName Name of the token used for payment
+    // tokenSymbol Symbol of the token used for payment
+    // _purchaseRatio Amount of tokens given per ETH paid
+    // _betPrice Amount of tokens required for placing a bet that goes for the prize pool
+    // _betFee Amount of tokens required for placing a bet that goes for the owner pool
     constructor(
         string memory tokenName,
         string memory tokenSymbol,
@@ -53,13 +53,13 @@ contract Lottery is Ownable {
         betFee = _betFee;
     }
 
-    /// @notice Passes when the lottery is at closed state
+    // Passes when the lottery is at closed state
     modifier whenBetsClosed() {
         require(!betsOpen, "Lottery is open");
         _;
     }
 
-    /// @notice Passes when the lottery is at open state and the current block timestamp is lower than the lottery closing date
+    //Passes when the lottery is at open state and the current block timestamp is lower than the lottery closing date
     modifier whenBetsOpen() {
         require(
             betsOpen && block.timestamp < betsClosingTime,
@@ -68,7 +68,7 @@ contract Lottery is Ownable {
         _;
     }
 
-    /// @notice Open the lottery for receiving bets
+    //Open the lottery for receiving bets
     function openBets(uint256 closingTime) public onlyOwner whenBetsClosed {
         require(
             closingTime > block.timestamp,
@@ -78,7 +78,7 @@ contract Lottery is Ownable {
         betsOpen = true;
     }
 
-    /// @notice Give tokens based on the amount of ETH sent
+    //Give tokens based on the amount of ETH sent
     function purchaseTokens() public payable {
         paymentToken.mint(msg.sender, msg.value * purchaseRatio);
     }
