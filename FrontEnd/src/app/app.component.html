@@ -44,6 +44,10 @@
             <br>
             <span>You can purchase a maximum of {{maxPurchaseAmount}} betting tokens</span>
             <div>
+                <div *ngIf="isOwner">
+                    <input #minutes type="number" placeholder="How many minutes?">
+                    <button (click)="openBets(minutes.value)" type="button" class="btn btn-success px-4 mx-2">Open the Betting round!</button>
+                </div>
                 <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"> 
                     <div class="card p-2 m-2">
                         <p>Bet Fee: {{betFee}}</p>
@@ -90,6 +94,9 @@
         <div>
             <input #address type="string" placeholder="address">
             <button (click)="displayPrize(address.value)" type="button" class="btn btn-success px-4 mx-2">Display Prize!</button>
+        </div>
+        <div>
+            <button (click)="returnTokens()" type="button" class="btn btn-success px-4 mx-2">Return my ETH!</button>
         </div>
          
  </div>

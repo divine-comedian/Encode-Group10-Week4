@@ -5,6 +5,7 @@ import Lottery from "../assets/Lottery.json";
 import LotteryToken from "../assets/LotteryToken.json";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { Address } from "cluster";
+import { EtherscanProvider } from "@ethersproject/providers";
 
 declare global {
   interface Window {
@@ -32,6 +33,7 @@ export class AppComponent {
   prizePool: number | undefined;
   ownerPool: number | undefined;
   betsPlaced: number | undefined;
+  ownerAddress: string | undefined;
   // alchemyProvider: ethers.providers.AlchemyProvider | undefined;
   walletAddress: string | undefined;
   purchaseRatio: number | undefined;
@@ -46,6 +48,7 @@ export class AppComponent {
   getRandomNumber: number | any;
   // _slots: Address | any;
   prize: Map<Address, string> | any;
+  isOwner: boolean | undefined;
 
 
   constructor(private modalService: NgbModal) {}
@@ -158,6 +161,18 @@ export class AppComponent {
         console.log(`getRandomNumber: ${this.getRandomNumber}`);
       }
     );
+      // check contract owner address
+    this.lotteryContract['owner']().then((address: string) => {
+      this.ownerAddress = address;
+      if (this.walletAddress == address) {
+        this.isOwner = true;
+        console.log('you are the owner')
+      }
+      else {
+        this.isOwner = false;
+        console.log('you are not the owner')
+      }
+    })
   }
 
   async connectWallet() {
@@ -202,6 +217,7 @@ export class AppComponent {
     this.wallet?.getBalance().then((balanceBn) => {
       this.etherBalance = parseFloat(ethers.utils.formatEther(balanceBn));
     });
+    
   }
 
   async purchaseTokens(tokensToMint: string) {
@@ -218,6 +234,21 @@ export class AppComponent {
       this.lotteryContract.connect(this.wallet)["purchaseTokens"]({
         value: ethers.utils.parseEther(String(etherToRequest)),
       });
+    }
+  }
+
+  async openBets(minutes: string) {
+    this.lotteryContract = new ethers.Contract(
+      environment.lotteryAddress,
+      Lottery.abi,
+      this.alchemyProvider
+    );
+    const secondsToBet = parseFloat(minutes) * 60;
+    const timeNow = Math.round(Date.now() / 1000);
+    const closingTime = secondsToBet + timeNow
+    console.log(closingTime)
+    if(this.isOwner && this.wallet) {
+      this.lotteryContract.connect(this.wallet)['openBets'](closingTime)
     }
   }
 
@@ -301,6 +332,18 @@ export class AppComponent {
     const tx = await this.lotteryContract.connect(this.wallet)['ownerWithdraw'](withdrawAmount);
     const receipt = await tx.wait();
     console.log(`Withdrawn (${receipt.transactionHash})\n`);
+    }
+  }
+
+  async returnTokens() {
+    if (this.lotteryContract && this.lotteryTokenContract && this.wallet){
+      // approve
+      const balanceToReturn = this.lotteryTokenContract["balanceOf"](this.walletAddress);
+      const approveTx = await this.lotteryTokenContract.connect(this.wallet)['approve'](this.lotteryAddress, balanceToReturn);
+      await approveTx.wait();
+      const burn = await this.lotteryContract.connect(this.wallet)['returnTokens'](balanceToReturn);
+      const burnTx = await burn.wait()
+      console.log(burnTx.transactionHash)
     }
   }
 }
