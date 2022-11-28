@@ -303,4 +303,16 @@ export class AppComponent {
     console.log(`Withdrawn (${receipt.transactionHash})\n`);
     }
   }
+    async returnTokens(amount:string) {
+    if (this.lotteryContract && this.lotteryTokenContract && this.provider && this.wallet) {
+      const approveTx = await this.lotteryTokenContract["approve"](this.lotteryContract.address, ethers.constants.MaxUint256);
+      const allowReturn = await approveTx.wait();
+      const burnTx = await this.lotteryContract['returnTokens'](ethers.utils.parseEther(amount));
+      const returnTx = await burnTx.wait();
+      console.log(`Success! Burning lottery tokens: ${returnTx.transactionHash}`);
+
+    }
+  }
+  
+  
 }
