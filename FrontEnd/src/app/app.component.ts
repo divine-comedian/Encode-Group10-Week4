@@ -244,15 +244,16 @@ export class AppComponent {
       console.log("bet success!");
       console.log("prize pool: ", this.prizePool);
     }
-    
-    //async prizeWithdraw(amount: number) {
-     // if (this.lotteryContract && this.lotteryTokenContract && this.provider && this.signer) {
-      //  const claimTx = await this.lotteryContract["prizeWithdraw"](ethers.utils.parseEther(amount));
-       // const receipt = await claimTx.wait();
-      //  console.log('Claiming prizes')
-     // }
-
   }
+
+  async prizeWithdraw(amount: string) {
+      if (this.lotteryContract && this.lotteryTokenContract && this.wallet) {
+        const prizeAmount = parseFloat(amount)
+        const claimTx = await this.lotteryContract["prizeWithdraw"](ethers.utils.parseEther(amount));
+        const receipt = await claimTx.wait();
+        console.log('Claiming prizes')
+      }
+    }
 
   async closeLottery() {
     console.log("CLOSE LOTTERY----------------");
