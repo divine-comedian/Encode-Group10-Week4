@@ -62,6 +62,10 @@
                 <p>getRandomNumber</p>  
                 <p>{{getRandomNumber}}</p>        
             </div>
+            <!-- <div class="card p-2 mb-1 text-bg-dark">
+                <p>Prize</p>  
+                <p>{{prize}}</p>        
+            </div> -->
             <div>
                 <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"> 
                     <div class="card p-2 m-2">
@@ -76,7 +80,16 @@
             <button (click)="bet()" type="button" class="betbtn btn-info px-4 mx-2">BET!</button>
         </div>
         <div>
+
           <input #amount type="number" placeholder="10">
           <button (click)="ownerWithdraw(amount.value)" type="button" class="betbtn btn-info px-4 mx-2">Withdraw</button>
       </div>
+
+            <button (click)="closeLottery()" type="button" class="closebtn btn-info px-4 mx-2">CLOSE</button>
+        </div>
+        <div>
+            <input #address type="string" placeholder="address">
+            <button (click)="displayPrize(address.value)" type="button" class="btn btn-success px-4 mx-2">Display Prize!</button>
+        </div>
+         
  </div>
