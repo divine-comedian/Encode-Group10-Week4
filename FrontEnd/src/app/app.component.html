@@ -91,5 +91,8 @@
             <input #address type="string" placeholder="address">
             <button (click)="displayPrize(address.value)" type="button" class="btn btn-success px-4 mx-2">Display Prize!</button>
         </div>
-         
+          <div>
+          <input #amount type="number" placeholder="1">
+          <button (click)="prizeWithdraw(amount.value)" type="button" class="btn btn-outline-primary px-4 mx-2">Cash me outisde!</button>
+        </div>
  </div>
