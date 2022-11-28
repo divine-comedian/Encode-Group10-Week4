@@ -1,109 +1,117 @@
-<div class="px-4 py-5 my-5 text-center">
-<img src="../assets/bet.png" alt="BetImage" style="width:200px;height:200px;">
-  <h1 class="display-5 fw-bold">
-     Best Lottery App Ever!</h1> 
-     <div class="col-lg-6 mx-auto"> 
-      <div *ngIf="!wallet">
-     <p class="lead mb-4">
-         Choose a connection method to get started :)</p> 
-         <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"> 
- <button (click)="createWallet()" 
-     type="button" 
-     class="btn btn-primary btn-lg px-4 gap-3">
-     Create a Wallet</button>
-
- <button (click)="connectWallet()" type="button" class="btn btn-success btn-lg px-4 gap-3">
-     Connect a Wallet</button>
- 
- </div>
-     </div > 
-     <div *ngIf="wallet">
-         <p class="lead mb-4">This is your address: {{walletAddress}}</p>
-         <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"> 
-             <div class="card p-2 m-2">
-             <p>Ether Balance: </p>
-             <p>{{etherBalance}}</p>
-         </div>
-         <div class="card p-4 m-2">
-             <p>Token Contract:</p>
-             <p>{{lotteryTokenAddress}}</p>
-         </div>
-         <div class="card p-4 m-2">
-             <p>My Token Balance:</p>
-              <p>{{lotteryTokenBalance}}</p>
-         </div>
-         
+<div class="px-2 py-2 my-2 text-center">
+    <img src="../assets/bet.png" alt="BetImage" style="width:200px;height:200px;">
+      <h1 class="display-5 fw-bold">
+         Best Lottery App Ever!</h1> 
+         <div class="col-lg-6 mx-auto"> 
+          <div *ngIf="!wallet">
+         <p class="lead mb-4">
+             Choose a connection method to get started :)</p> 
+             <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"> 
+     <button (click)="createWallet()" 
+         type="button" 
+         class="btn btn-primary btn-lg px-4 gap-3">
+         Create a Wallet</button>
+    
+     <button (click)="connectWallet()" type="button" class="btn btn-success btn-lg px-4 gap-3">
+         Connect a Wallet</button>
+     
      </div>
-     <div><button style="background:#1aa3ff;color:white;" (click)="updateBlockchainInfo()">Refresh</button></div>
-     <h2>Get Tokens!</h2>
-     <p>Lottery Contract: {{lotteryContract?.address}} </p>
- </div>
-        <div *ngIf="wallet">
-            <input #tokensToMint type="number" min="1" [max]="maxPurchaseAmount" placeholder="10">
-            <button (click)="purchaseTokens(tokensToMint.value)" type="button" class="btn btn-success px-4 mx-2">Buy Tokens!</button>
+         </div > 
+         <div *ngIf="wallet">
+             <p class="lead mb-1">This is your address: {{walletAddress}}</p>
+             <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"> 
+                 <div class="card p-1 m-2">
+                 <p>Ether Balance: </p>
+                 <p>{{etherBalance}}</p>
+             </div>
+             <div class="card p-1 m-2">
+                 <p>Token Contract:</p>
+                 <p>{{lotteryTokenAddress}}</p>
+             </div>
+             <div class="card p-1 m-2">
+                 <p>My Token Balance:</p>
+                  <p>{{lotteryTokenBalance}}</p>
+             </div>
+             
+         </div>
+         <div><button style="background:#1aa3ff;color:white;" (click)="updateBlockchainInfo()">Refresh</button></div>
+         <h2>Get Tokens!</h2>
+         <h5>Lottery Contract: {{lotteryContract?.address}} </h5>
+     </div>
+            <div *ngIf="wallet">
+                <input #tokensToMint type="number" min="1" [max]="maxPurchaseAmount" placeholder="10">
+                <button (click)="purchaseTokens(tokensToMint.value)" type="button" class="btn btn-lg btn-success px-4 mx-2">Buy Tokens!</button>
+                <br>
+                <br>
+                <h5>You can purchase a maximum of {{maxPurchaseAmount}} betting tokens</h5>
+
+                <br>
+                <h6>Previus Random Number is: {{getRandomNumber}}</h6>  
+                    
+                <div>
+                    <div *ngIf="isOwner">
+                        <input #minutes type="number" placeholder="How many minutes?">
+                        <button (click)="openBets(minutes.value)" type="button" class="btn btn-success px-4 mx-2">Open the Betting round!</button>
+                    </div>
+                    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"> 
+                        <div class="card p-2 m-2">
+                            <p>Bet Fee: {{betFee}}</p>
+                        </div>
+                    <div class="card p-2 m-2">
+                        <p>Bet Price: {{betPrice}}</p>
+                    </div>
+                    <div class="card p-2 m-2">
+                        <p>Closing Time: {{betsClosingTimeString}}</p>
+                    </div>
+                    <div class="card p-2 m-2">
+                        <p>Open to bet: {{betsOpen}} </p><p></p>
+                    </div>
+                </div>
+             
+              
+                <div>
+                    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"> 
+                        <div class="card p-2 m-2">
+                            <p>Prize Pool: {{prizePool}}</p>
+                        </div>
+                    <div class="card p-2 m-2">
+                        <p>Owner Pool: {{ownerPool}}</p>
+                    </div>
+                </div>
+            </div>    
+            <div>
+                <br>
+                <br>
+                <button (click)="bet()" type="button" class="btn btn-lg btn-danger px-4 mx-4">Start Play BET!</button>
+                <br>
+                <br>
+                <br>
+            </div>
+            <div>
+    
+              <input #amount type="number" placeholder="10">
+              <button (click)="ownerWithdraw(amount.value)" type="button" class="btn btn-success px-41 mx-4">Withdraw</button>
+           <div>
             <br>
-            <span>You can purchase a maximum of {{maxPurchaseAmount}} betting tokens</span>
+
             <div>
-                <div *ngIf="isOwner">
-                    <input #minutes type="number" placeholder="How many minutes?">
-                    <button (click)="openBets(minutes.value)" type="button" class="btn btn-success px-4 mx-2">Open the Betting round!</button>
-                </div>
-                <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"> 
-                    <div class="card p-2 m-2">
-                        <p>Bet Fee: {{betFee}}</p>
-                    </div>
-                <div class="card p-2 m-2">
-                    <p>Bet Price: {{betPrice}}</p>
-                </div>
-                <div class="card p-2 m-2">
-                    <p>Closing Time: {{betsClosingTimeString}}</p>
-                </div>
-                <div class="card p-2 m-2">
-                    <p>Open to bet: {{betsOpen}} </p><p></p>
-                </div>
+                <input #address type="string" placeholder="address">
+                <button (click)="displayPrize(address.value)" type="button" class="btn btn-success px-4 mx-4">Display Prize!</button>
             </div>
-            <div class="card p-2 mb-1 text-bg-dark">
-                <p>getRandomNumber</p>  
-                <p>{{getRandomNumber}}</p>        
+            <br>
+              <div>
+              <input #amount type="number" placeholder="1">
+              <button (click)="prizeWithdraw(amount.value)" type="button" class="btn btn-outline-primary px-4 mx-4">Cash me out!</button>
             </div>
-            <!-- <div class="card p-2 mb-1 text-bg-dark">
-                <p>Prize</p>  
-                <p>{{prize}}</p>        
-            </div> -->
+            <br>
+        </div>
+    
+        <button (click)="closeLottery()" type="button" class="btn btn-lg btn-outline-dark px-1 mx-1">CLOSE</button>
+        </div>
+        <br>
             <div>
-                <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"> 
-                    <div class="card p-2 m-2">
-                        <p>Prize Pool: {{prizePool}}</p>
-                    </div>
-                <div class="card p-2 m-2">
-                    <p>Owner Pool: {{ownerPool}}</p>
-                </div>
+                <button (click)="returnTokens()" type="button" class="btn btn-success px-4 mx-2">Return my ETH!</button>
             </div>
+     
         </div>    
-        <div>
-            <button (click)="bet()" type="button" class="betbtn btn-info px-4 mx-2">BET!</button>
-        </div>
-        <div>
-
-          <input #amount type="number" placeholder="10">
-          <button (click)="ownerWithdraw(amount.value)" type="button" class="betbtn btn-info px-4 mx-2">Withdraw</button>
-      </div>
-
-            <button (click)="closeLottery()" type="button" class="closebtn btn-info px-4 mx-2">CLOSE</button>
-        </div>
-        <div>
-            <input #address type="string" placeholder="address">
-            <button (click)="displayPrize(address.value)" type="button" class="btn btn-success px-4 mx-2">Display Prize!</button>
-        </div>
-        <br>
-          <div>
-          <input #amount type="number" placeholder="1">
-          <button (click)="prizeWithdraw(amount.value)" type="button" class="btn btn-outline-primary px-4 mx-2">Cash me out!</button>
-        </div>
-        <br>
-        <div>
-            <button (click)="returnTokens()" type="button" class="btn btn-success px-4 mx-2">Return my ETH!</button>
-        </div>
- </div>
-         
- </div>
+    </div>
