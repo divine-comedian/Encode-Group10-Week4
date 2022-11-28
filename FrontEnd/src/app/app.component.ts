@@ -1,9 +1,10 @@
 import { Component, ComponentFactoryResolver } from "@angular/core";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber, BigNumberish, ethers } from "ethers";
 import { environment } from "src/environments/environment";
 import Lottery from "../assets/Lottery.json";
 import LotteryToken from "../assets/LotteryToken.json";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { formatUnits } from "ethers/lib/utils";
 
 declare global {
   interface Window {
@@ -33,7 +34,7 @@ export class AppComponent {
   betsPlaced: number | undefined;
   // alchemyProvider: ethers.providers.AlchemyProvider | undefined;
   walletAddress: string | undefined;
-  purchaseRatio: number | undefined;
+  purchaseRatio: BigNumberish | undefined;
   maxPurchaseAmount: number | undefined;
   alchemyProvider = new ethers.providers.AlchemyProvider(
     "goerli",
@@ -70,9 +71,8 @@ export class AppComponent {
       this.alchemyProvider
     );
 
-    this.lotteryContract?.["purchaseRatio"]().then((purchaseRatio: number) => {
-      this.purchaseRatio =
-        Number(ethers.utils.formatUnits(purchaseRatio)) * 10 ** 18;
+    this.lotteryContract?.["purchaseRatio"]().then((purchaseRatio: BigNumberish) => {
+      this.purchaseRatio = ethers.utils.formatUnits(purchaseRatio); 
       console.log(this.purchaseRatio);
     });
 
@@ -91,10 +91,12 @@ export class AppComponent {
           this.lotteryTokenBalance = parseFloat(
             ethers.utils.formatEther(tokenBalanceBn)
           );
-          if (this.etherBalance && this.purchaseRatio) {
-            this.maxPurchaseAmount =
-              this.etherBalance * this.purchaseRatio * 0.95;
-          }
+
+          // NEED TO FIX THIS
+         // if (this.etherBalance && this.purchaseRatio) {
+         //   this.maxPurchaseAmount =
+         //     this.etherBalance.mul(this.purchaseRatio);
+         // }
         }
       );
     });
@@ -206,7 +208,10 @@ export class AppComponent {
       this.etherBalance = parseFloat(ethers.utils.formatEther(balanceBn));
     });
     if (this.wallet && this.purchaseRatio && this.etherBalance) {
-      const etherToRequest = parseFloat(tokensToMint) / this.purchaseRatio;
+      const etherToRequest =  ethers.utils.parseUnits(tokensToMint)
+      // / ethers.utils.parseUnits(this.purchaseRatio)
+      // .div(this.purchaseRatio);
+      console.log(etherToRequest)
       this.lotteryContract = new ethers.Contract(
         environment.lotteryAddress,
         Lottery.abi,
@@ -220,19 +225,17 @@ export class AppComponent {
 
   async bet() {
     console.log("---BET!---------");
-    // this.provider = new ethers.providers.Web3Provider(window.ethereum);
-    // const signer = this.provider.getSigner();
-    // const state = await this.lotteryContract?.["betsOpen"]();
     this.lotteryContract = new ethers.Contract(
       environment.lotteryAddress,
       Lottery.abi,
       this.alchemyProvider
     );
     if (this.wallet && this.betFee && this.betPrice) {
+      // approve spending bet tokens to lottery contract
       const betTokens = this.betFee + this.betPrice
      const allowTx = await this.lotteryTokenContract?.connect(this.wallet)['approve'](this.lotteryAddress, betTokens)
       await allowTx.wait()
-     console.log(this.lotteryContract)
+     // place bet
       const tx = await this.lotteryContract
       .connect(this.wallet)
       ["bet"]();
@@ -242,9 +245,5 @@ export class AppComponent {
       console.log("prize pool: ", this.prizePool);
     }
 
-    // ownerPool += betFee;
-    // prizePool += betPrice;
-    // _slots.push(msg.sender);
-    // paymentToken.transferFrom(msg.sender, address(this), betPrice + betFee);
   }
 }
