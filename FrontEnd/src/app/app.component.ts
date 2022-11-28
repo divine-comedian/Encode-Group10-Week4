@@ -44,6 +44,7 @@ export class AppComponent {
   betsOpen: string | undefined;
   getRandomNumber: number | any;
 
+
   constructor(private modalService: NgbModal) {}
 
   public open(modal: any): void {
@@ -241,10 +242,25 @@ export class AppComponent {
       console.log("bet success!");
       console.log("prize pool: ", this.prizePool);
     }
-
+    
     // ownerPool += betFee;
     // prizePool += betPrice;
     // _slots.push(msg.sender);
     // paymentToken.transferFrom(msg.sender, address(this), betPrice + betFee);
+  }
+
+  async ownerWithdraw(amount: string) {
+    const withdrawAmount = parseFloat(amount)
+    console.log('ownerWithdraw to the moon')
+    this.lotteryContract = new ethers.Contract(
+      environment.lotteryAddress,
+      Lottery.abi,
+      this.alchemyProvider
+    );
+    if (this.wallet) {
+    const tx = await this.lotteryContract.connect(this.wallet)['ownerWithdraw'](withdrawAmount);
+    const receipt = await tx.wait();
+    console.log(`Withdrawn (${receipt.transactionHash})\n`);
+    }
   }
 }

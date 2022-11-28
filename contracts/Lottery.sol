@@ -104,7 +104,6 @@ contract Lottery is Ownable {
     /// @dev Anyone can call this function if the owner fails to do so
     function closeLottery() public {
         require(block.timestamp >= betsClosingTime, "Too soon to close");
-        require(betsOpen, "Already closed");
         if (_slots.length > 0) {
             uint256 winnerIndex = getRandomNumber() % _slots.length;
             address winner = _slots[winnerIndex];
@@ -149,6 +148,6 @@ contract Lottery is Ownable {
 
     function getBettingWindow(uint256 duration) public view returns(uint256) {
         
-       return (block.timestamp + duration * 1 hours);
+       return (block.timestamp + duration * 1 minutes);
     }
 }
