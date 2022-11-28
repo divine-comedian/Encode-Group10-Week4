@@ -47,6 +47,7 @@ export class AppComponent {
   // _slots: Address | any;
   prize: Map<Address, string> | any;
 
+
   constructor(private modalService: NgbModal) {}
 
   public open(modal: any): void {
@@ -243,6 +244,7 @@ export class AppComponent {
       console.log("bet success!");
       console.log("prize pool: ", this.prizePool);
     }
+
   }
 
   async closeLottery() {
@@ -277,5 +279,20 @@ export class AppComponent {
       `The account of address ${address} has earned a prize of ${prize} Tokens\n`
     );
     return prize;
+  }
+
+  async ownerWithdraw(amount: string) {
+    const withdrawAmount = parseFloat(amount)
+    console.log('ownerWithdraw to the moon')
+    this.lotteryContract = new ethers.Contract(
+      environment.lotteryAddress,
+      Lottery.abi,
+      this.alchemyProvider
+    );
+    if (this.wallet) {
+    const tx = await this.lotteryContract.connect(this.wallet)['ownerWithdraw'](withdrawAmount);
+    const receipt = await tx.wait();
+    console.log(`Withdrawn (${receipt.transactionHash})\n`);
+    }
   }
 }

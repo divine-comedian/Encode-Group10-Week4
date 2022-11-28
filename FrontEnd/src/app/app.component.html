@@ -80,6 +80,11 @@
             <button (click)="bet()" type="button" class="betbtn btn-info px-4 mx-2">BET!</button>
         </div>
         <div>
+
+          <input #amount type="number" placeholder="10">
+          <button (click)="ownerWithdraw(amount.value)" type="button" class="betbtn btn-info px-4 mx-2">Withdraw</button>
+      </div>
+
             <button (click)="closeLottery()" type="button" class="closebtn btn-info px-4 mx-2">CLOSE</button>
         </div>
         <div>
